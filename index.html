@@ -4,7 +4,9 @@
   <title>Cat Club 🐱</title>
   <style>
     body { font-family: Arial; text-align:center; background:#f5f5f5; }
-    #gallery img { margin:5px; border-radius:10px; width:200px; height:200px; object-fit:cover; }
+    #gallery { display: flex; flex-wrap: wrap; justify-content: center; }
+    #gallery img { margin:5px; border-radius:10px; width:200px; height:200px; object-fit:cover; transition: transform 0.2s; }
+    #gallery img:hover { transform: scale(1.1); }
     #preview { margin-top:10px; border:2px dashed #ccc; border-radius:10px; }
   </style>
 </head>
@@ -24,9 +26,9 @@
 
 <script>
   // ==== SETTINGS ====
-  const cloudName = 'dk51b0rri'; // 
-  const unsignedUploadPreset = 'catclub'; // 
-  const cloudFolder = 'cat-club'; // 
+  const cloudName = 'dk51b0rri';         // Your Cloudinary cloud name
+  const unsignedUploadPreset = 'catclub'; // Your unsigned upload preset
+  const cloudFolder = 'catclub';          // Folder in Cloudinary for cat images
   const gallery = document.getElementById("gallery");
   const preview = document.getElementById("preview");
 
@@ -39,6 +41,7 @@
   // ==== Load all images from Cloudinary folder ====
   async function loadCats() {
     try {
+      // Fetch list of images in folder (Cloudinary provides a JSON endpoint)
       const res = await fetch(`https://res.cloudinary.com/${cloudName}/image/list/${cloudFolder}.json`);
       const data = await res.json();
       data.resources.forEach(r => addCatToGallery(r.secure_url));
@@ -72,6 +75,7 @@
       const data = await res.json();
       const imgUrl = data.secure_url;
 
+      // Add to gallery immediately
       addCatToGallery(imgUrl);
       alert("Cat uploaded to Cloudinary! 🎉");
 

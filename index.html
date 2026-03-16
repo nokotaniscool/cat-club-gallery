@@ -5,6 +5,7 @@
   <style>
     body { font-family: Arial; text-align:center; background:#f5f5f5; }
     #gallery img { margin:5px; border-radius:10px; width:200px; height:200px; object-fit:cover; }
+    #preview { margin-top:10px; border:2px dashed #ccc; border-radius:10px; }
   </style>
 </head>
 <body>
@@ -13,34 +14,31 @@
   <p>Send your best cat pictures!</p>
 
   <h2>Cat Gallery</h2>
-<img src="images/ollie.jpg" alt="Ollie the cat" width="300">
   <div id="gallery"></div>
 
   <br><br>
   <h2>Upload Your Cat 🐱</h2>
   <input type="file" id="catUpload" accept="image/*">
-  <br><br>
+  <br>
   <img id="preview" width="200">
   <br><br>
   <button onclick="uploadCat()">Submit Cat</button>
 
 <script>
   // ==== SETTINGS ====
-  const cloudName = 'mycatcloud'; // 
-  const unsignedUploadPreset = 'catclub'; // 
-  const githubJSON = 'https://raw.githubusercontent.com/nokotaniscool/cat-club-gallery/refs/heads/main/cats.json'; // 
+  const cloudName = 'mycatcloud';        // Replace with your Cloudinary cloud name
+  const unsignedUploadPreset = 'catclub'; // Replace with your unsigned upload preset
+  const githubJSON = 'https://raw.githubusercontent.com/nokotaniscool/cat-club-gallery/main/cats.json';
   const gallery = document.getElementById("gallery");
   const preview = document.getElementById("preview");
 
-  // Preview selected image
+  // ==== Preview selected image ====
   document.getElementById("catUpload").addEventListener('change', function() {
     const file = this.files[0];
-    if (file) {
-      preview.src = URL.createObjectURL(file);
-    }
+    if (file) preview.src = URL.createObjectURL(file);
   });
 
-  // Load previous cats from JSON
+  // ==== Load existing cats from JSON ====
   async function loadCats() {
     try {
       const res = await fetch(githubJSON);
@@ -54,10 +52,11 @@
   function addCatToGallery(url) {
     const img = document.createElement("img");
     img.src = url;
+    img.alt = "Cute cat";
     gallery.appendChild(img);
   }
 
-  // Upload a new cat to Cloudinary
+  // ==== Upload new cat to Cloudinary ====
   async function uploadCat() {
     const file = document.getElementById("catUpload").files[0];
     if (!file) { alert("Please select a cat first!"); return; }
@@ -73,14 +72,17 @@
       });
       const data = await res.json();
       const imgUrl = data.secure_url;
-      addCatToGallery(imgUrl);
 
+      // Add to gallery immediately
+      addCatToGallery(imgUrl);
       alert("Cat uploaded to Cloudinary! 🎉");
 
-      // ----- Optional: Update JSON -----
-      // For free static GitHub pages, automatic JSON update isn't possible.
-      // You can manually add new image URLs to cats.json to keep them persistent.
-      console.log("Add this URL to cats.json for persistence:", imgUrl);
+      // Optional: log URL for you to save permanently if needed
+      console.log("Add this URL to cats.json if you want it persistent:", imgUrl);
+
+      // Clear preview
+      preview.src = "";
+      document.getElementById("catUpload").value = "";
 
     } catch(err) {
       console.error(err);
@@ -88,7 +90,7 @@
     }
   }
 
-  // Load gallery on page open
+  // ==== Load gallery on page load ====
   loadCats();
 </script>
 

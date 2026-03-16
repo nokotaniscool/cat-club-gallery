@@ -10,25 +10,23 @@
 </head>
 <body>
 
-  <h1>Welcome to the Cat Club 🐱</h1>
-  <p>Send your best cat pictures!</p>
+<h1>Welcome to the Cat Club 🐱</h1>
+<p>Send your best cat pictures!</p>
 
-  <h2>Cat Gallery</h2>
-  <div id="gallery"></div>
+<h2>Cat Gallery</h2>
+<div id="gallery"></div>
 
-  <br><br>
-  <h2>Upload Your Cat 🐱</h2>
-  <input type="file" id="catUpload" accept="image/*">
-  <br>
-  <img id="preview" width="200">
-  <br><br>
-  <button onclick="uploadCat()">Submit Cat</button>
+<br><br>
+<h2>Upload Your Cat 🐱</h2>
+<input type="file" id="catUpload" accept="image/*"><br>
+<img id="preview" width="200"><br><br>
+<button onclick="uploadCat()">Submit Cat</button>
 
 <script>
   // ==== SETTINGS ====
-  const cloudName = 'mycatcloud';        // Replace with your Cloudinary cloud name
-  const unsignedUploadPreset = 'catclub'; // Replace with your unsigned upload preset
-  const githubJSON = 'https://raw.githubusercontent.com/nokotaniscool/cat-club-gallery/main/cats.json';
+  const cloudName = 'dk51b0rri'; // 
+  const unsignedUploadPreset = 'catclub'; // 
+  const cloudFolder = 'cat-club'; // 
   const gallery = document.getElementById("gallery");
   const preview = document.getElementById("preview");
 
@@ -38,12 +36,12 @@
     if (file) preview.src = URL.createObjectURL(file);
   });
 
-  // ==== Load existing cats from JSON ====
+  // ==== Load all images from Cloudinary folder ====
   async function loadCats() {
     try {
-      const res = await fetch(githubJSON);
-      const cats = await res.json();
-      cats.forEach(url => addCatToGallery(url));
+      const res = await fetch(`https://res.cloudinary.com/${cloudName}/image/list/${cloudFolder}.json`);
+      const data = await res.json();
+      data.resources.forEach(r => addCatToGallery(r.secure_url));
     } catch(err) {
       console.error("Failed to load cats:", err);
     }
@@ -64,6 +62,7 @@
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', unsignedUploadPreset);
+    formData.append('folder', cloudFolder);
 
     try {
       const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/upload`, {
@@ -73,12 +72,8 @@
       const data = await res.json();
       const imgUrl = data.secure_url;
 
-      // Add to gallery immediately
       addCatToGallery(imgUrl);
       alert("Cat uploaded to Cloudinary! 🎉");
-
-      // Optional: log URL for you to save permanently if needed
-      console.log("Add this URL to cats.json if you want it persistent:", imgUrl);
 
       // Clear preview
       preview.src = "";
